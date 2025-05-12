@@ -9,13 +9,13 @@ interface Iparams{
 
 export async function POST(
     request:Request,
-    {params}:{params:Iparams}
+    {params}:{params:Promise<Iparams>}
 ){
     try{
             const currentUser=await getCurrentUser();
             const{
                 converationId
-            }=params;
+            }= await params;
 
             if(!currentUser?.id||!currentUser?.email) return new NextResponse('Unauthorized',{status:401})
 
