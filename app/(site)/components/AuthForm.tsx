@@ -70,6 +70,16 @@ const AuthForm = () => {
 
     const socialAction=(action:string)=>{
         setIsLoading(true)
+        signIn(action,{redirect:false})
+        .then((callback)=>{
+            if(callback?.error){
+                toast.error('Invalid Credentials');
+            }
+            if(callback?.ok && !callback?.error){
+                toast.success("Logged In!");
+            }
+        })
+        .finally(()=>setIsLoading(false))
         //nextauth social sign-in
     }
   return (
@@ -144,10 +154,10 @@ const AuthForm = () => {
                         icon={BsGoogle}
                         onClick={()=>socialAction('google')}
                         />
-                        <AuthSocialButton
+                        {/* <AuthSocialButton
                         icon={BsFacebook}
                         onClick={()=>socialAction('facebook')}
-                        />
+                        /> */}
                     </div>
             </div>
             <div className='flex gap-2 justify-center text-sm mt-6 px-2 text-gray-500'>
