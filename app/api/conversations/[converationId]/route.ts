@@ -10,10 +10,10 @@ type IParams={
 
 export async function DELETE(
     request:Request,
-    {params}:{ params: IParams }
+    {params}:{ params: Promise<IParams> }
 ){
     try{
-        const {converationId}=params
+        const {converationId}= await params
         const currentUser=await getCurrentUser();
 
         if(!currentUser?.id) {return new NextResponse('Unauthorized',{status:401})}
