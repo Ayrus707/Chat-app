@@ -4,7 +4,7 @@ import { NextResponse } from "next/server";
 import prisma from "@/app/libs/prismadb"
 import { pusherServer } from "@/app/libs/pusher";
 
-interface IParams{
+type IParams={
     converationId?:string;
 }
 
