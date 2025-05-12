@@ -10,7 +10,7 @@ interface IParams{
 
 export async function DELETE(
     request:Request,
-    {params}:{params:IParams}
+    { params }:{ params: IParams }
 ){
     try{
         const {converationId}=params
