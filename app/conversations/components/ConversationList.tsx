@@ -12,6 +12,7 @@ import { User } from '@/app/generated/prisma'
 import { useSession } from 'next-auth/react'
 import { pusherClient } from '@/app/libs/pusher'
 import { find } from 'lodash'
+import Tooltip from '@/app/components/Tooltip'
 
 interface ConversationListProps{
   initialItems:FullConversationType[];
@@ -21,7 +22,8 @@ interface ConversationListProps{
 const ConversationList:React.FC<ConversationListProps> = ({
   initialItems,users
 }) => {
-  const [items,setItems]=useState(initialItems);
+  // const [items,setItems]=useState(initialItems);
+  const [items, setItems] = useState<FullConversationType[]>([]);
   const [isModalOpen,setIsModalOpen]=useState(false);
   const router=useRouter();
 const session=useSession();
@@ -31,7 +33,13 @@ const session=useSession();
     return session.data?.user?.email
   },[session.data?.user?.email])
 
+useEffect(() => {
+  setItems(initialItems);
+}, [initialItems]);
+
+
   useEffect(()=>{
+
     if(!pusherKey) return;
     pusherClient.subscribe(pusherKey)
 const newHandler=(conversation:FullConversationType)=>{
@@ -60,19 +68,30 @@ const removeHandler =(conversation:FullConversationType)=>{
   })
   if(converationId==conversation.id) router.push(`/conversations`);
 }
+
+const deleteHandler = (data: { id: string }) => {
+    setItems((current) =>
+      current.filter((convo) => convo.id !== data.id)
+    );
+    if (converationId === data.id) router.push(`/conversations`);
+  };
+
     pusherClient.bind('conversation:new',newHandler)
     pusherClient.bind('conversation:update',updateHandler)
     pusherClient.bind('conversation:remove',removeHandler)
+    pusherClient.bind('conversation:delete', deleteHandler); 
 
     return ()=>{
       pusherClient.unsubscribe(pusherKey)
       pusherClient.unbind('conversation:new',newHandler)
       pusherClient.unbind('conversation:update',updateHandler)
       pusherClient.unbind('conversation:remove',removeHandler)
+       pusherClient.unbind('conversation:delete', deleteHandler);
     }
   },[pusherKey])
   return (
     <>
+
     <GroupChatModal
     users={users}
     isOpen={isModalOpen}
@@ -89,7 +108,7 @@ const removeHandler =(conversation:FullConversationType)=>{
   Messages
 </div>
 <div onClick={()=>setIsModalOpen(true)}className='rounded-full p-2 bg-gray-100 text-gray-600 cursor-pointer hover:opacity-75 transition'>
-  <MdOutlineGroupAdd size={25}/>
+ <Tooltip text='Group chat'> <MdOutlineGroupAdd size={25}/></Tooltip>
 </div>
 </div>
 {items.map((item)=>(

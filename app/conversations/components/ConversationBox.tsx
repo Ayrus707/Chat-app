@@ -11,7 +11,8 @@ import useOtherUser from '@/app/hooks/useOtherUser'
 import { FullConversationType } from '@/app/types'
 import Avatar from '@/app/components/Avatar'
 import AvatarGroup from '@/app/components/AvatarGroup'
-
+import { decryptMessage } from '@/app/libs/crypto';
+import { useThemeColor } from '@/app/context/ThemeContext';
 
 
 interface ConversationBoxProps{
@@ -21,6 +22,15 @@ interface ConversationBoxProps{
 const ConversationBox:React.FC<ConversationBoxProps> = ({
     data,selected
 }) => {
+
+  const { themeColor } = useThemeColor();
+  const colorMap: Record<string, string> = {
+      Red: 'hover:bg-red-100',
+      Orange: 'hover:bg-orange-100',
+      Yellow: 'hover:bg-yellow-100',
+      Green: 'hover:bg-green-100',
+      Purple: 'hover:bg-purple-100',
+    };
 const otherUser=useOtherUser(data)
 const session=useSession();
 const router=useRouter();
@@ -53,13 +63,62 @@ const hasSeen=useMemo(()=>{
 
 
 
-const lastMessageText=useMemo(()=>{
-  if(lastMessage?.image) return 'Sent an Image.'
+// const lastMessageText=useMemo(()=>{
+//   if(lastMessage?.image) return 'Sent an Image.'
 
-  if(lastMessage?.body) return lastMessage.body
+//   if(lastMessage?.body) return lastMessage.body
 
-  return "Started a conversation."
-},[lastMessage]);
+//   return "Started a conversation."
+// },[lastMessage]);
+
+
+// const lastMessageText = useMemo(() => {
+//   if (lastMessage?.image) return 'Sent an Image.';
+
+//   if (lastMessage?.body) {
+//     try {
+//       return decryptMessage(lastMessage.body);
+//     } catch (err) {
+//       console.error("Failed to decrypt last message:", err);
+//       return '[Decryption failed]';
+//     }
+//   }
+
+//   return "Started a conversation.";
+// }, [lastMessage]);
+
+
+const lastMessageText = useMemo(() => {
+  if (lastMessage?.image) {
+    const url = lastMessage.image;
+
+    if (url.match(/\.(mp4|webm|ogg)$/i)) {
+      return 'Sent a video.';
+    }
+
+    if (url.match(/\.(gif)$/i)) {
+      return 'Sent a GIF.';
+    }
+
+    if (url.match(/\.(pdf|docx?|txt|xlsx?)$/i)) {
+      return 'Sent a document.';
+    }
+
+    return 'Sent an image.';
+  }
+
+  if (lastMessage?.body) {
+    try {
+      return decryptMessage(lastMessage.body);
+    } catch (err) {
+      console.error("Failed to decrypt last message:", err);
+      return '[Decryption failed]';
+    }
+  }
+
+  return "Started a conversation.";
+}, [lastMessage]);
+
 
 
 // const unreadCount = useMemo(() => {
@@ -74,10 +133,13 @@ const lastMessageText=useMemo(()=>{
 
 
   return (
-    <div onClick={handleClick} className={clsx(`
-    w-full relative flex items-center space-x-3 hover:bg-neutral-100
-    rounded-lg transition cursor-pointer p-3
-    `,selected?'bg-neutral-100':'bg-white')}>
+    <div onClick={handleClick}  className={clsx(
+    'w-full relative flex items-center space-x-3 rounded-lg transition cursor-pointer p-3',
+    colorMap[themeColor] || 'hover:bg-neutral-100',
+    selected ? 'bg-neutral-100' : 'bg-white'
+  )}
+    
+    >
       {data.isGroup?(
         <AvatarGroup users={data.users}/>
       ):(

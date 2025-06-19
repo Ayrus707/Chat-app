@@ -5,6 +5,7 @@ import ToasterContext from "./context/ToasterContext";
 import AuthContext from "./context/AuthContext";
 import ActiveStatus from "./components/ActiveStatus";
 import { Inter } from "next/font/google";
+import { ThemeProvider } from './context/ThemeContext';
 
 // const geistSans = Geist({
 //   variable: "--font-geist-sans",
@@ -41,7 +42,9 @@ export default function RootLayout({
         <AuthContext>
         <ToasterContext/>
         <ActiveStatus/>
+        <ThemeProvider>
         {children}
+       </ThemeProvider>
         </AuthContext>
       </body>
     </html>

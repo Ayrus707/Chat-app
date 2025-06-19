@@ -9,6 +9,9 @@ import { HiEllipsisHorizontal, HiMiniChevronLeft } from 'react-icons/hi2';
 import ProfileDrawer from './ProfileDrawer';
 import AvatarGroup from '@/app/components/AvatarGroup';
 import useActiveList from '@/app/hooks/useActiveList';
+import { useThemeColor } from '@/app/context/ThemeContext';
+
+import clsx from 'clsx';
 
 interface HeaderProps{
     conversation:Conversation &{
@@ -22,8 +25,19 @@ const Header:React.FC<HeaderProps> = ({
   const [drawerOpen,setDrawerOpen]=useState(false);
   const {members}=useActiveList();
   const isActive=members.indexOf(otherUser?.email!)!=-1;
+  const { themeColor } = useThemeColor();
+    const colorMap: Record<string, string> = {
+        Red: 'text-red-500 ',
+        Orange: 'text-orange-500',
+        Yellow: 'text-yellow-500 ',
+        Green: 'text-green-500',
+        Purple: 'text-purple-500',
+      };
+    
 
   const statusText=useMemo(()=>{
+
+
     if(conversation.isGroup){return `${conversation.users.length} members`}
 
     return isActive ? 'Active':'Offline';
@@ -40,10 +54,12 @@ const Header:React.FC<HeaderProps> = ({
     '>
       <div className='flex  gap-3  items-center'>
         <Link
-        className='lg:hidden block text-sky-500 hover:text-sky-600 transition cursor-pointer'
+         className="lg:hidden block cursor-pointer"
 
         href="/conversations">
-        <HiMiniChevronLeft size={30}/>  
+        <HiMiniChevronLeft size={30}
+        className={colorMap[themeColor] || colorMap.Default}
+        />  
         </Link>
         {conversation.isGroup?(
             <AvatarGroup users={conversation.users}/>
@@ -61,8 +77,13 @@ const Header:React.FC<HeaderProps> = ({
         </div>
         </div>
       </div>
-      <HiEllipsisHorizontal size={30} onClick={()=>setDrawerOpen(true)}
-        className='text-sky-500 cursor-pointer hover:text-sky-600 transition'
+      
+
+      <HiEllipsisHorizontal size={36} onClick={()=>setDrawerOpen(true)}
+        className={clsx(
+    'cursor-pointer',
+    colorMap[themeColor] ||colorMap.Default
+  )}
         />
       </div>
     </>
@@ -70,3 +91,13 @@ const Header:React.FC<HeaderProps> = ({
 }
 
 export default Header
+
+
+
+
+
+
+
+
+
+

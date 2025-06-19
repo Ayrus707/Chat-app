@@ -12,10 +12,17 @@ import { signIn, useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 
 type variant= 'LOGIN' | 'REGISTER';
-const AuthForm = () => {
+
+
+interface AuthFormProps {
+  variant: variant;
+  setVariant: React.Dispatch<React.SetStateAction<variant>>;
+}
+
+const AuthForm:React.FC<AuthFormProps> = ({variant,setVariant}) => {
     const session=useSession();
     const router=useRouter();
-    const [variant,setvariant]=useState<variant>('LOGIN');
+    // const [variant,setvariant]=useState<variant>('LOGIN');
     const [isLoading,setIsLoading]=useState(false);
 
     useEffect(()=>{
@@ -24,10 +31,9 @@ const AuthForm = () => {
         }   
     },[session?.status,router])
 
-    const toggleVariant=useCallback(()=>{
-        if(variant=='LOGIN') setvariant('REGISTER')
-        else setvariant('LOGIN')
-    },[variant]);
+  const toggleVariant = useCallback(() => {
+    setVariant(variant === 'LOGIN' ? 'REGISTER' : 'LOGIN');
+  }, [variant, setVariant]);
 
     const {
         register,handleSubmit,
@@ -46,7 +52,9 @@ const AuthForm = () => {
         setIsLoading(true)
         if(variant=='REGISTER'){
             axios.post('/api/register',data)
-            .then(()=>signIn('credentials',data))
+            .then(()=>{
+                toast.success("Welcome! Account Created Successfully")
+                signIn('credentials',data)})
             .catch(()=>toast.error("Something went wrong"))
             .finally(()=>setIsLoading(false))
             }

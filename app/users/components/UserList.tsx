@@ -1,8 +1,10 @@
 "use client"
 
 import { User } from '@/app/generated/prisma'
-import React from 'react'
+import React, { useEffect, useMemo, useState } from 'react'
 import UserBox from './UserBox'
+import { pusherClient } from '@/app/libs/pusher'
+import { useSession } from 'next-auth/react'
 
 interface UserListProps{
     items:User[]
@@ -10,6 +12,27 @@ interface UserListProps{
 const UserList:React.FC<UserListProps> = ({
   items
 }) => {
+  const [userList, setUserList] = useState(items)
+  const session = useSession()
+
+  const pusherKey = useMemo(() => session.data?.user?.email, [session.data?.user?.email])
+
+  useEffect(() => {
+    if (!pusherKey) return
+
+    pusherClient.subscribe("global")
+
+    const handleUserDelete = (data: { userId: string }) => {
+      setUserList((prev) => prev.filter((u) => u.id !== data.userId))
+    }
+
+    pusherClient.bind("user:delete", handleUserDelete)
+       return () => {
+      pusherClient.unsubscribe("global")
+      pusherClient.unbind("user:delete", handleUserDelete)
+    }
+  }, [pusherKey])
+  
   return (
   <aside className='fixed  inset-y-0 pb-20 lg:pb-0 lg:left-20 lg:w-80 lg:block overflow-y-auto
   border-r border-gray-200 block w-full left-0
@@ -22,7 +45,7 @@ text-2xl font-bold text-neutral-800 py-4
 People
 </div>
 </div>
-{items.map((item)=>(
+{userList.map((item)=>(
   <UserBox
   key={item.id}
   data={item}

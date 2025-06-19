@@ -10,6 +10,8 @@ import Input from '../input/Input';
 import Image from 'next/image';
 import { CldUploadButton, CldUploadWidget } from 'next-cloudinary';
 import Button from '../Button';
+import DeleteAccountModal from '../DeleteAccountModal';
+
 interface SettingsModalProps{
     isOpen?:boolean
     onClose:()=>void;
@@ -20,6 +22,7 @@ const SettingsModal:React.FC<SettingsModalProps> = ({
 }) => {
     const router=useRouter();
     const [isLoading,setIsLoading]=useState(false)
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const{register,handleSubmit,setValue,watch,formState:{errors,}}=useForm<FieldValues>({
         defaultValues:{
             name:currentuser?.name,
@@ -92,21 +95,40 @@ const SettingsModal:React.FC<SettingsModalProps> = ({
                                     type="button"
                                     onClick={() => setValue('image', null,{ shouldValidate: true, shouldDirty: true, shouldTouch: true } )}
                                     disabled={isLoading}
-                                    danger
+                                    
                                     >
                                     Remove
                                     </Button>
+                                    
                             </div>
                         </div>
                 </div>
                 </div>
 
-                <div className='mt-6 flex items-center justify-end gap-x-6 '>
-                                <Button disabled={isLoading} secondary onClick={onClose}> Cancel</Button>
-                                <Button disabled={isLoading} type='submit' onClick={onClose}> Save</Button>
-                </div>
+             <div className="mt-6 flex items-center justify-between">
+  {/* Delete Button on the left */}
+  <Button
+    type="button"
+    onClick={() => setIsDeleteModalOpen(true)}
+    disabled={isLoading}
+    danger
+  >
+    Delete Account
+  </Button>
+
+  {/* Cancel & Save Buttons on the right */}
+  <div className="flex gap-x-6">
+    <Button disabled={isLoading} secondary onClick={onClose}>Cancel</Button>
+    <Button disabled={isLoading} type="submit">Save</Button>
+  </div>
+</div>
+
             </div>
         </form>
+        <DeleteAccountModal
+  isOpen={isDeleteModalOpen}
+  onClose={() => setIsDeleteModalOpen(false)}
+/>
     </Modal>
   )
 }

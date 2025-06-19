@@ -21,7 +21,7 @@ const MobileItem:React.FC<MobileItemProps> = ({
     <Link href={href}
     onClick={onClick}
     className={clsx(`
-        group flex gap-x-3 text-sm leading-6 font-semibold w-full  justify-center p-4 text-gray-500
+        group flex gap-x-3 text-sm leading-6 font-semibold w-full  justify-center p-4 text-gray-700
 
         hover:text-black hover:bg-gray-100
         `,active && 'bg-gray-100 text-black')}
