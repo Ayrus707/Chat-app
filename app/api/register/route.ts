@@ -15,6 +15,11 @@ export  async function POST(
 
     if(!email||!name||!password) return new NextResponse('Missing Details',{status:400})
 
+  if (password.length < 6) {
+            return new NextResponse('Password too weak', {
+                status: 400
+            });
+        }
     const hashedPassword=await bcrypt.hash(password,14);
 
     const user=await prisma.user.create({

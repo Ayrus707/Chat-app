@@ -55,7 +55,13 @@ const AuthForm:React.FC<AuthFormProps> = ({variant,setVariant}) => {
             .then(()=>{
                 toast.success("Welcome! Account Created Successfully")
                 signIn('credentials',data)})
-            .catch(()=>toast.error("Something went wrong"))
+           .catch((error)=>{ // Modify this part
+                if (error.response && error.response.status === 400 && error.response.data === 'Password too weak') {
+                    toast.error("Password too weak. Please use at least 6 characters.");
+                } else {
+                    toast.error("Something went wrong. Please try again.");
+                }
+            })
             .finally(()=>setIsLoading(false))
             }
         if(variant=='LOGIN'){
